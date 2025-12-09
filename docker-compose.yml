@@ -20,6 +20,12 @@ services:
     container_name: api-container
     ports:
       - "8000:8000" # CORRECTION DES PORTS
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/users || exit 1"]
+      interval: 30s # Vérifie toutes les 30 secondes
+      timeout: 10s  # Attend 10 secondes pour une réponse
+      retries: 3    # Échoue après 3 tentatives infructueuses
+      start_period: 10s # Donne 10s à l'API pour démarrer avant le 1er test
     volumes:
       - app_logs:/app/logs
     networks:
