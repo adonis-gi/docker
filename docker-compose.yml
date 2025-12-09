@@ -1,0 +1,57 @@
+version: '3.8'
+
+
+
+
+services:
+  db:
+    image: postgres:latest
+    container_name: db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: test123!
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    container_name: api-container
+    ports: 8000:8000
+    volumes: app_logs:/app/logs
+    networks: app_network, web_network
+    depends_on: db
+    restart: unless-stopped
+
+  reverse-proxy:
+    image: nginx:latest
+    container_name: reverse-proxy
+    ports: 8080:80
+    volumes: ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks: web_network
+    depends_on: api
+    restart: unless-stopped
+
+  monitor:
+    build: ./monitor
+    container_name: monitor
+    volumes: app_logs:/logs
+    restart: unless-stopped
+
+
+
+
+volumes:
+  db_data:
+    external: true
+  app_logs:
+    external: true
+
+networks:
+  web_network:
+    name: web_network
+  app_network:
+    name: app_network

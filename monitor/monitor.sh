@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Le volume app_logs sera monté sur /logs
 LOG_FILE="/logs/api.log"
 
