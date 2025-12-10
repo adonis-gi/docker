@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   db:
@@ -58,9 +57,7 @@ services:
 
 volumes:
   db_data:
-    external: true
   app_logs:
-    external: true
 
 networks:
   web_network:
