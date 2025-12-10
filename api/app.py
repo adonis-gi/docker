@@ -2,8 +2,8 @@ import os
 import psycopg2
 from flask import Flask, jsonify
 
-# Configuration de la DB
-DB_HOST = 'db' 
+# Configuration de la DB (Lecture des variables depuis l'environnement Compose)
+DB_HOST = 'db'
 DB_NAME = 'appdb'
 DB_USER = 'appuser'
 DB_PASSWORD = 'test123!'
@@ -30,12 +30,34 @@ def ping_db():
     except Exception as e:
         return jsonify({"status": "DB Connection FAILED", "error": str(e)}), 500
 
+#Lecture des utilisateurs depuis la base de données
 @app.route("/users", methods=["GET"])
 def get_users():
-    return jsonify([
-        {"id": 1, "name": "Alice"},
-        {"id": 2, "name": "Bob"}
-    ])
+    conn = None
+    try:
+        # Tente d'ouvrir la connexion à la DB
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Exécute la requête SQL pour récupérer les utilisateurs
+        cur.execute("SELECT id, name FROM users;")
+        users = cur.fetchall()
+        
+        # Formatte le résultat en liste de dictionnaires
+        users_list = [{"id": row[0], "name": row[1]} for row in users]
+        
+        cur.close()
+        return jsonify(users_list), 200
+
+    except Exception as e:
+        # En cas d'erreur de connexion à la DB, retourne 500
+        print(f"Erreur de base de données: {e}")
+        return jsonify({"error": "Erreur de connexion à la base de données ou de lecture."}), 500
+
+    finally:
+        # Assurez-vous que la connexion est toujours fermée
+        if conn:
+            conn.close()
 
 @app.route("/", methods=["GET"])
 def home():
