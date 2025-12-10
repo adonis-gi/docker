@@ -57,7 +57,9 @@ services:
 
 volumes:
   db_data:
+    name: db_data
   app_logs:
+    name: app_logs
 
 networks:
   web_network:
